@@ -1,0 +1,10 @@
+version: 2.0
+shards:
+  bmp:
+    git: https://github.com/globoplox/bmp.git
+    version: 1.1.0
+
+  cryplot:
+    git: https://github.com/naqvis/cryplot.git
+    version: 0.1.1
+

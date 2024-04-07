@@ -1,0 +1,19 @@
+name: wurld
+version: 0.1.0
+
+authors:
+  - globoplox <globoplox@gmail.com>
+
+targets:
+  wurld:
+    main: src/wurld.cr
+
+dependencies:
+  cryplot:
+    github: naqvis/cryplot
+  bmp:
+    github: globoplox/bmp
+  
+crystal: '>= 1.11.2'
+
+license: MIT
