@@ -9,7 +9,8 @@ width = 400u32
 height = 400u32
 noise = Noise.new
 expression = nil
-
+resolution = 100u32
+  
 OptionParser.parse do |parser|
   parser.banner = "usage: <name> [options] [expression]"
 
@@ -19,6 +20,10 @@ OptionParser.parse do |parser|
 
   parser.on "-w width", "--width width", "Set output picture width" do |w|
     width = w.to_u32
+  end
+
+  parser.on "-r resolution", "--resolution resolution", "Set amount of pixel per 1.0 distance in noise" do |r|
+    resolution = r.to_u32
   end
 
   parser.on "-h height", "--height height", "Set output picture height" do |h|
@@ -39,12 +44,12 @@ OptionParser.parse do |parser|
     raise "Color ranges must specify at least to colors" unless ranges.size >= 2
     
     colors = (0u8...256).map do |i|
-      step = 256 // (ranges.size - 1)
+      step = 256 / (ranges.size - 1)
       lo = i // step
       hi = i // step + 1
       lo_r, lo_g, lo_b  = ranges[lo]
       hi_r, hi_g, hi_b = ranges[hi]
-      w = (i % step) / 256 * (ranges.size - 1)
+      w = (i % step.to_i) / 256 * (ranges.size - 1)
       r = lo_r + (hi_r - lo_r) * w
       g = lo_g + (hi_g - lo_g) * w
       b = lo_b + (hi_b - lo_b) * w
@@ -70,7 +75,7 @@ in Float64
   end
 in Noise
   bmp = BMP.fill8bpp(width, height) do |x, y|
-    (noise[x / 50, y / 50] * 128 + 128).clamp(0u8, 255u8).to_u8
+    (noise[x / resolution, y / resolution] * 128 + 128).clamp(0u8, 255u8).to_u8
   end
 end
 

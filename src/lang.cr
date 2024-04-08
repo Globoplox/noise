@@ -119,13 +119,16 @@ module Noise::Lang
         in ::Noise
           frequencies = dimension_parameters_to_indexable @parameters.select(&.name.== "frequency")
           offsets = dimension_parameters_to_indexable @parameters.select(&.name.== "offset")
-          ::Noise.new frequencies: frequencies, offsets: offsets, child: sub
-
-          #if @parameters.any?(&.name.== "period")
-          #  periods = dimension_parameters_to_indexable(@parameters.select(&.name.== "period")).map &.try &.to_u32
-          #  ::Noise.new frequencies: frequencies, offsets: offsets, periods: periods
-          #else
-          #end
+          if @parameters.any? &.name.== "period"
+            if @target.class == AST::Noise
+              periods = dimension_parameters_to_indexable(@parameters.select(&.name.== "period")).map &.try &.to_u32
+              ::Noise.new periods: periods, frequencies: frequencies, offsets: offsets
+            else
+              raise "Periods parameters can be applied only to root a noise"
+            end
+          else
+            ::Noise.new frequencies: frequencies, offsets: offsets, child: sub
+          end
         end
       end
     end

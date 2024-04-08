@@ -1,18 +1,17 @@
-name: wurld
-version: 0.1.0
+name: noise
+version: 1.0.0
 
 authors:
   - globoplox <globoplox@gmail.com>
 
 targets:
-  wurld:
-    main: src/wurld.cr
+  cli:
+    main: src/cli.cr
 
 dependencies:
-  cryplot:
-    github: naqvis/cryplot
   bmp:
     github: globoplox/bmp
+    version: 1.2.0
   
 crystal: '>= 1.11.2'
 

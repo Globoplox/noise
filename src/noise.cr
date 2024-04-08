@@ -7,11 +7,6 @@ class Noise
   @intensity_gain : Float64
   @child : Noise?
 
-  def periods=(periods = Slice(Float64?))
-    raise "Cannot set periods on non root noise" if @child
-    @periods = periods.map &.as UInt32?
-  end
-
   # Initialize a periodic noise. It must be the root noise to be periodic.
   def initialize(
     periods : Indexable(UInt32?), 
@@ -45,11 +40,14 @@ class Noise
   end
 
   def [](*coordinates : Float64) : Float64
-    (@child || self).raw(
-      *coordinates.map_with_index { |c, i| 
-        c = c * (@frequencies[i]? || 1.0) + (@offsets[i]? || 1.0) 
-      }
-     ) * @intensity_multiplier + @intensity_gain
+    coordinates = coordinates.map_with_index { |c, i| 
+      c = c * (@frequencies[i]? || 1.0) + (@offsets[i]? || 1.0) 
+    }
+    if child = @child
+      child[*coordinates]
+    else
+      self.raw *coordinates
+    end * @intensity_multiplier + @intensity_gain
   end
 
   # Generate noise value for the given coordinates and gradients
@@ -70,7 +68,7 @@ class Noise
         g[dimension] * distance[dimension]
       }
     }
-
+    
     (0...(coordinates.size)).map { |dimension| 
       s = coordinates[dimension] - coordinates[dimension].to_i
       products = (0...(2 ** ((coordinates.size) - dimension - 1))).map { |n|
@@ -83,13 +81,15 @@ class Noise
 
   def gradients(coordinates : Indexable(Int32)) : Indexable(Float64)
     coordinates = coordinates.map_with_index { |c, i| 
-      @periods[i]?.try { |period| c - c % period } || c
+      @periods[i]?.try { |period| c % period } || c
     }
-    seed = coordinates[0] * 100 + coordinates[1]
+    seed = coordinates.reduce { |a, b| (a &* 100) &+ b }
     seeded_random = Random.new seed
-    gradient = (0...(coordinates.size)).map { seeded_random.rand - 0.5 }
+    gradient = (0...(coordinates.size)).map { (seeded_random.rand - 0.5) * 2 }
+    return gradient if gradient.size == 1
     length = Math.sqrt gradient.reduce { |a, b| a ** 2 + b ** 2 }
-    gradient.map { |corrdinate| corrdinate / length }
+    normal = gradient.map { |corrdinate| corrdinate / length }
+    normal
   end
 
   class Sum < Noise
@@ -100,7 +100,7 @@ class Noise
       @noises = noises.map &.as Noise
     end
 
-    def [](*coordinates : Float64) : Float64
+    def raw(*coordinates : Float64) : Float64
       transformed = coordinates.map_with_index { |c, i| 
         c = c * (@frequencies[i]? || 1.0) + (@offsets[i]? || 1.0) 
       }
