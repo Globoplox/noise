@@ -1,7 +1,7 @@
 require "option_parser"
 require "bmp"
 require "./noise"
-require "./lang"
+require "./lang/parser"
 
 output = STDOUT
 colors = BMP::GRAYSCALE_8BPP

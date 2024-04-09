@@ -1,5 +1,5 @@
 # Noise
-65;7402;1c
+
 Generate perlin noise.
 For fun pet-project.
 
@@ -17,7 +17,18 @@ Add the dependency to your `shard.yml`:
 
 ## Programmatic
 
-A simple plot of a 1d noise:
+Instantiate a noise:  
+`noise = Noise.new`  
+
+Get the noise value at given cooridnates:  
+`noise[0.456] # 1d `  
+`noise[0.456, 0.678] # 2d `  
+`noise[0.0, 0.0, 0.0, 0.0, 0.0] # or more`  
+
+Basic noise function output a value between `-1.0` and `1.0`.  
+
+Example of a 1d noise plotted:  
+
 ```cr
 require "noise"
 
@@ -39,9 +50,24 @@ end
 end
 ```
 
-Basic noise function output a value between `-1.0` and `1.0`.
+```txt
+                             ###                                                                    
+                          #########                                                                 
+                        ############                                                  ####          
+                       ###############               #####                         ##########       
+########            #####################         ###########                   #################   
+###########       #########################    ################               ######################
+################################################################             #######################
+##################################################################         #########################
+####################################################################     ###########################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+####################################################################################################
+```
 
-The noise function work at any order, based on the number of coordinates given:
+Example of a 1d noise plotted:  
 
 ```cr
 require "noise"
@@ -59,6 +85,59 @@ noise = Noise.new
   end
   STDOUT << '\n'
 end
+```
+
+```txt
+oooooooooooooooooooooo°°°°°°......°°°°°°oooooooo000000oooooooo°°°°..........°°°°oooooooooooooooo°°°°
+°°°°oooooooooooooooooo°°°°°°°°°°°°°°°°°°oooooo0000000000oooooo°°°°°°........°°°°°°oooooooooooo°°°°°°
+°°°°°°oooooooo00oooooooo°°°°°°°°°°°°°°oooooo000000000000oooooo°°°°°°......°°°°°°°°oooooooooo°°°°°°°°
+°°°°°°°°oooo000000oooooooooo°°°°°°°°oooooo00000000000000oooooooo°°°°°°°°°°°°°°°°oooooooooo°°°°°°°°°°
+..°°°°°°oooo0000000000oooooooo°°oooooooo00000000000000oooooooooooo°°°°°°°°°°°°oooooooooooo°°°°°°....
+..°°°°°°oooo0000000000oooooooooooooooooo00000000000000oooooooooooooooooooooooooooooooooooo°°°°°°....
+..°°°°°°oooo0000000000oooooooooooooooooo0000000000oooooooooooooooooooooooooooooooooooooo°°°°°°°°°°..
+°°°°°°oooo0000000000oooooooo°°°°°°oooooooooo00oooooooooooooooooooooo000000oooooooooooooo°°°°°°°°°°°°
+°°°°oooooo000000oooooooooo°°°°°°°°°°oooooooooooooooo°°°°°°°°oooooo0000000000oooooooooo°°°°°°°°°°°°°°
+°°oooooooo0000oooooooooo°°°°°°°°°°°°°°oooooooooooo°°°°°°°°°°oooooo0000000000oooooo°°°°°°°°°°oooooo°°
+oooooooooo00oooooooooo°°°°°°°°°°°°°°°°°°oooooooo°°°°°°°°°°°°oooooooo000000oooooooo°°°°°°°°°°oooooooo
+oooooooooooooooooo°°°°°°°°°°......°°°°°°°°°°°°°°°°°°°°°°°°°°°°oooooo0000oooooooo°°°°°°°°°°°°oooooooo
+oooooooooooooooooo°°°°°°°°..........°°°°°°°°°°°°°°°°°°°°°°°°°°oooooo0000oooooo°°°°°°°°°°°°oooooooooo
+oooooooooooooooo°°°°°°°°................°°°°°°°°°°°°°°°°°°°°°°oooooooo00oooooo°°°°°°°°°°°°oooooooooo
+°°oooooooooooooo°°°°°°°°..................°°°°°°°°°°°°°°°°°°°°oooooo0000oooooooo°°°°°°°°°°oooooo00oo
+°°°°oooooooooooo°°°°°°°°......  ..........°°°°°°°°°°°°°°°°°°°°oooooo000000oooooo°°°°°°°°oooooooo00oo
+°°°°°°oooooooooo°°°°°°°°..................°°°°°°°°°°°°°°°°°°°°oooooo000000oooooooo°°°°°°oooooooooooo
+°°°°°°oooooooooooo°°°°°°................°°°°°°°°°°°°°°°°°°°°°°oooooo00000000oooooooo°°oooooooooooooo
+°°°°°°oooooooooooooo°°°°°°............°°°°°°°°°°°°°°°°°°°°°°°°oooo0000000000oooooooo°°oooooooooooooo
+°°°°oooooooooooooooo°°°°°°..........°°°°°°°°oo°°°°°°°°°°°°°°oooooo0000000000oooooo°°°°°°oooooooooooo
+oooooooooooooooooooooo°°°°°°......°°°°°°oooooooo°°°°°°°°°°°°oooooo00000000oooooooo°°°°°°°°oooooooooo
+oooooooooo0000oooooooo°°°°°°....°°°°°°°°oooooooooo°°°°°°°°°°oooooooo000000oooooo°°°°°°°°°°oooooooooo
+oooooooo00000000oooooo°°°°°°°°°°°°°°°°oooooooooooo°°°°°°°°°°oooooo00000000oooo°°°°°°°°°°°°°°oooooooo
+oooooo0000000000oooooo°°°°°°°°°°°°°°°°oooooooooooo°°°°°°°°oooooooo00000000oooooo°°°°°°°°°°°°oooooooo
+oooooooo00000000oooooooo°°°°°°°°°°°°°°oooooooooooo°°°°°°oooooooo0000000000oooooo°°°°°°°°°°°°oooooooo
+oooooooooo000000oooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°oooooooooo0000000000oooooooo°°°°°°°°°°oooooooo
+oooooooooooooooooooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°oooooooooo000000000000oooooooo°°°°°°°°°°oooooo
+oooooooooooooooooooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°oooooooooooo0000000000oooooooooo°°°°°°°°°°oooo
+oo°°°°°°°°oooooooooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°oooooooooooo000000oooooooooooo°°°°°°°°°°°°oo
+oo°°°°°°°°°°oooooooooo°°°°°°°°°°°°oooo°°°°°°°°°°°°°°°°°°oooooooooooooooooooooooooooo°°°°°°°°°°°°°°°°
+oo°°°°°°°°°°oooooooooo°°°°°°°°°°oooooooooo°°°°°°°°°°°°°°°°°°oooooooooooooooooooooo°°°°°°°°°°°°°°°°°°
+oo°°°°°°°°°°oooooooo°°°°°°°°°°°°oooooooooooo°°°°°°°°°°°°°°°°°°°°°°oooooooooooo°°°°°°°°°°......°°°°°°
+oo°°°°°°°°°°oooooooo°°°°°°°°°°oooooooooooooooo°°°°°°°°°°°°°°°°°°°°°°°°oooo°°°°°°°°°°°°°°......°°°°°°
+oooo°°°°°°oooooooooo°°°°°°°°oooooooo00oooooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+oooooooooooooooooooooooooooooooo0000000000oooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+oooooooooooooooooooooooooooooo000000000000oooooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+oooooooooooooooooooooooooooo00000000000000oooooooooooooooooo°°°°°°°°°°°°°°°°°°°°°°oooooooooooooooooo
+oooooooooooooooooooooooooooo000000000000oooooooooooooooooooooo°°°°°°°°°°°°°°°°°°oooooooooo00oooooooo
+oooooooooooooooooooooooooooo00000000oooooooooooooooooooooooooo°°°°°°°°..°°°°°°°°oooooo0000000000oooo
+oooooooooooooooooooooooooooooo00oooooooooooo°°oooooooooooooooo°°°°°°......°°°°°°oooooo0000000000oooo
+oooooooooo°°°°°°°°°°oooooooooooooooooooooo°°°°°°°°oooooooooooo°°°°°°......°°°°°°oooooooo000000oooooo
+°°°°°°°°°°°°°°°°°°°°°°°°oooooooooooooo°°°°°°°°°°°°°°oooooooo°°°°°°..........°°°°°°oooooo000000oooooo
+°°°°°°°°°°°°°°°°°°°°°°°°°°oooooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°..........°°°°°°°°oooooo00oooooooo
+°°°°°°°°°°°°°°°°°°°°°°°°°°oooooo°°°°°°°°°°......°°°°°°°°°°°°°°°°..............°°°°°°°°oooooooooooooo
+°°°°°°°°°°°°°°°°°°°°°°°°°°oooooo°°°°°°°°..........°°°°°°°°°°°°..................°°°°°°°°oooooooooooo
+°°°°°°°°°°°°°°°°°°°°°°oooooooooo°°°°°°............°°°°°°°°°°°°....................°°°°°°oooooooooooo
+°°°°oooooooo°°°°°°°°oooooooooooo°°°°°°°°..........°°°°°°°°°°°°......................°°°°°°oooooooooo
+°°oooooooooooo°°°°oooooooooooooooo°°°°°°°°......°°°°°°°°°°°°°°°°..............°°°°°°°°°°°°oooooooooo
+oooooooooooooooooooooooooooooooooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°......°°°°°°°°°°°°°°°°oooooooooooo
+oooooooooooooo°°°°oooooooooooooooooooo°°°°°°°°°°°°°°oooooo°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°oooooooooooo
 ```
 
 Noise can be periodic and can be warpped into transformations, including:
@@ -79,27 +158,41 @@ noise = Noise.new(
 
 ## Standalone
 
-Come with a standalone CLI tool for generating 2D perlin noise pictures:
+This project come with a standalone CLI tool for generating 2D perlin noise pictures:  
 
-Exemples:
+`shards build cli`
 
-Build a 400x400 pixel grayscale bitmap with 100x100 pixels within each gradient cell. 
+Build a 400x400 pixel grayscale bitmap with 100x100 pixels within each gradient cell:  
+
 `./bin/cli > noise.bmp`
 
-Build a 100x100 pixel bitmap with 10x10 pixels within each gradient cell. 
-`./bin/cli --width 100 -height 100 --resolution 10 > noise.bmp`
+![Basic perlin noise picture](examples/basic.bmp)
 
-Colors output can be customized:
-`./bin/cli --colors '255,0,0 - 255,255,255 - 0,0,255' > noise.bmp`
+Build a 100x100 pixel bitmap with 10x10 pixels within each gradient cell:  
+`./bin/cli --width 100 --height 100 --resolution 10 > noise.bmp`  
+![Smaller perlin noise picture](examples/small.bmp)
+
+
+### Colors
+
+Colors output can be customized:  
+`./bin/cli --colors '255,0,0 - 255,255,255 - 0,0,255' > noise.bmp`  
+![Red and blue perlin noise picture](examples/colors.bmp)
+
 In this example, the color space is divided in two continuous range: 
 - from pure red (rgb 255, 0, 0) to pure white (rgb 255, 255, 255)
 - from pure white (rgb 255, 255, 255) to pure blue (rgb 0, 0, 255)
 
-Each color is specified in rgb format `<red: 0-255>,<green: 0-255>,<blue: 0-255>`
-There can be from 2 to any number of color, the color space will span evenly on each ranges.
+Each color is specified in rgb format:  
+`<red: 0-255>,<green: 0-255>,<blue: 0-255>`  
+There can be from 2 to any number of color, the color space will span evenly on each ranges.  
 
-The noise function that is drawn can be customized:
+### Noise function transformation and composition
+
+The noise function that is drawn can be customized:  
 `./bin/cli --colors '255,0,0 - 255,255,255 - 0,0,255' 'n + n[freq 2] / 2 + n[freq 4] / 4'  > noise.bmp`
+
+![Composed perlin noise picture](examples/composed.bmp)
 
 The noise function is specified as an expression:
 - `n` is a simple noise function
@@ -112,12 +205,10 @@ The noise function is specified as an expression:
 - `n + n[freq 10.0]` noise fucntion can be transformed by increasing the frequency
 - `n + n[freq 10.0 offset 0.5]` parameters can be grouped
 - `n + n[freq 2][freq 2]` transformations can be chained
-- `n[period 5 freq 3]` a root noise function (not transformed or composed of computation of other noise) can be made periodic
+- `n[period 5 freq 3]` a root noise function can be made periodic
 - `n[period x:5 freq 3]` period, frequency and offset parameters can be set for a specific dimension
-
-Example: `n + n[freq 2] / 2 + n[freq 4] / 4 + n[freq 8] / 8`
 
 ## Performance
 
-There were no significant effort for high performance invloved in this project.  
-It focus toyability by provding customizable generics.
+This project focus toyability over performance, so there has not yet been effort for performance improvement.  
+

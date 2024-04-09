@@ -1,146 +1,22 @@
-require "./noise"
-# TODO: add debug info to tokens and parser output
-# Cleanup errors
+require "../noise"
+require "./ast"
+
 module Noise::Lang
-  class AST
-    enum Type
-      NOISE
-      SCALAR
+
+  class Parser
+ 
+    @tokens : Array(String)
+    @cursor = 0
+
+    def initialize(io)
+      @tokens = Parser.lex io
     end
 
-    abstract class Expression < AST
-      abstract def expression_type : Type
-
-      abstract def build : Float64 | ::Noise
-    end
-
-    class Unary < Expression
-      def initialize(@operator : String, @right : Expression)
-      end
-
-      def expression_type : Type
-        @right.type
-      end
-
-      def build : Float64 | ::Noise
-        got = @right.build
-        case @operator
-        when "+" then got
-        when "-" then -got
-        else raise "Unexpected operator '#{@operator}"
-        end
-      end
-    end
-
-    class Binary < Expression
-      def initialize(@left : Expression, @operator : String, @right : Expression)
-      end
-
-      def expression_type : Type
-        case {@left.type, @right.type}
-        when {Type::Scalar, Type::Scalar} then Type::Scaler
-        else Type::Noise
-        end
-      end
-
-      def build : Float64 | ::Noise
-        left = @left.build
-        right = @right.build
-        case @operator
-        when "+" then left + right
-        when "-" then left - right
-        when "*" then left * right
-        when "/" then left / right
-        else raise "Unexpected operator '#{@operator}"
-        end
-      end
-    end
-
-    abstract class Literal < Expression
-    end
-    
-    class Number < Literal
-      def initialize(@value : Float64) 
-      end
-
-      def expression_type : Type
-        Type::SCALAR
-      end
-
-      def build : Float64 | ::Noise
-        @value
-      end
-    end
-
-    class Noise < Literal
-      def initialize(@name : String)
-      end
-      
-      def build : Float64 | ::Noise
-        ::Noise.new
-      end
-
-      def expression_type : Type
-        Type::NOISE
-      end
-    end
-
-    class Parameter < AST
-      getter name, dimension, value
-      def initialize(@name : String, @dimension : UInt32?, @value : Float64)
-      end
-    end
-    
-    class Parameters < Expression
-      def initialize(@target : Expression, @parameters : Array(Parameter))
-      end
-
-      def expression_type : Type
-	      Type::NOISE
-      end
-
-      # Fallback to 4D for now, TODO: supports dimension wildcards parameters
-      # This kind sucks
-      def dimension_parameters_to_indexable(parameters : Array(Parameter))
-        default = parameters.find &.dimension.nil?
-        r = Array(Float64?).new(4, default.try &.value)
-        parameters.each do |parameter|
-          dim = parameter.dimension
-          r[dim] = parameter.value if dim
-        end
-        r
-      end
-
-      # TODO: handle period. IDK how.
-      def build : Float64 | ::Noise
-        sub = @target.build
-        case sub
-        in Float64 then raise "Cannot apply noise parameters to a scalar value"
-        in ::Noise
-          frequencies = dimension_parameters_to_indexable @parameters.select(&.name.== "frequency")
-          offsets = dimension_parameters_to_indexable @parameters.select(&.name.== "offset")
-          if @parameters.any? &.name.== "period"
-            if @target.class == AST::Noise
-              periods = dimension_parameters_to_indexable(@parameters.select(&.name.== "period")).map &.try &.to_u32
-              ::Noise.new periods: periods, frequencies: frequencies, offsets: offsets
-            else
-              raise "Periods parameters can be applied only to root a noise"
-            end
-          else
-            ::Noise.new frequencies: frequencies, offsets: offsets, child: sub
-          end
-        end
-      end
-    end
-  end
-
-  module Lexer
-    extend self
-    
     STOPWORDS = ['+', '-', '*', '/', '[', ']', '(', ')']
     WHITESPACE = ['\n', '\t', '\r', ' ']
-    
-    def lex(io) : Array(String)
+
+    # Naive tokenizer
+    def self.lex(io) : Array(String)
       tokens = [] of String
       buffer = [] of Char
       io.each_char do |c|
@@ -164,15 +40,6 @@ module Noise::Lang
       tokens << buffer.join unless buffer.empty?
       tokens
     end
-  end
-
-  class Parser
-    @tokens : Array(String)
-    @cursor = 0
-
-    def initialize(io)
-      @tokens = Lexer.lex io
-    end
 
     def parameter(name) : AST::Parameter
       list = (next_token || raise "Unexpected end of input").split ':'
@@ -192,7 +59,11 @@ module Noise::Lang
       else dimension.to_u32
       end
     end
-    
+
+    # Parse an expression
+    # Naive recursive descent state machine parser:
+    # It first  extract all operators and operands in order
+    # Then reduce them following operator priorities.
     def expression : AST::Expression
       elements = [] of AST::Expression | {binary: String} | {unary: String}
       last = nil
@@ -200,8 +71,10 @@ module Noise::Lang
         token = next_token
 
         case {token, last}
+
         when {")", :operator}, {nil, _}
           break
+
         when {"[", :operator}
           target = elements[-1].as AST::Expression
           parameters = [] of AST::Parameter
@@ -222,6 +95,7 @@ module Noise::Lang
             end
           end
           elements[-1] = AST::Parameters.new target, parameters
+
         when {"(", :unary}, {"(", :binary}, {"(", nil}
           elements << expression()
           last = :operator
@@ -241,6 +115,7 @@ module Noise::Lang
             elements << AST::Noise.new token
           end
           last = :operator
+
         else 
           raise "Parser exception: cannot parse token #{token.dump} after a #{last || "NOTHING"} token"
         end
@@ -254,7 +129,6 @@ module Noise::Lang
         [{binary: "*"}, {binary: "/"}],
         [{binary: "+"}, {binary: "-"}],
       ]
-
       
       priorities.each do |priority|
         loop do 
