@@ -156,6 +156,27 @@ noise = Noise.new(
 )
 ```
 
+### Faster picture specialized API
+
+The module `Noise::Fast2D` exposes functions to build simple 2D noises: 
+
+`Noise::Fast2D.noise(width : UInt32, height : UInt32, resolution : UInt32, data : Bytes, x_offset : Int32 = 0, y_offset : Int32 = 0)`
+will fill the given `data` slice with 2D noise level from `0` to `255`. It expects data to be a flattend 2D array (`i = y * w + x`), 
+of size `resolution * width * resolution * height`. Parameters `width`, `height`, `x_offset` and `y_offset` specify the amount of cells of `resolution X resolution` pixel to draw.
+
+`Noise::Fast2D.concurrent(..., workers: UInt8)` accepts the same parameters and does the perform the same task, but will use concurrency to speed up the process. If paired with compilation flag `-Dpreview_mt` and an addequate `CRYSTAL_WORKERS` envrionnement variable value at runtime, it can significantly speed up the process of generating a simple 2D noise picture:
+
+```sh
+crystal build --release -Dpreview_mt src/cli.cr
+
+# CLI tool with the default implementation:
+time CRYSTAL_WORKERS=4 ./cli -w 4000 -h 4000 -r 10 > /dev/null
+# => CRYSTAL_WORKERS=4 ./cli -w 4000 -h 4000 -r 10 > /dev/null  19.55s user 0.47s system 100% cpu 19.870 total
+# CLI tool with the specialized implementation:
+time CRYSTAL_WORKERS=4 ./cli -f -w 4000 -h 4000 -r 10 > /dev/null 
+# => CRYSTAL_WORKERS=4 ./cli -f -w 4000 -h 4000 -r 10 > /dev/null  0.30s user 0.01s system 338% cpu 0.093 total
+```
+
 ## Standalone
 
 This project come with a standalone CLI tool for generating 2D perlin noise pictures:  
@@ -210,5 +231,18 @@ The noise function is specified as an expression:
 
 ## Performance
 
-This project focus toyability over performance, so there has not yet been effort for performance improvement.  
+The generic implementation has poor performance.  
 
+Another implementation specialized with rendering 2D arrays of noise values has been added:
+
+### 
+Building a 800x800 pixels, 8x8 gradients bmp picture, took on average on my laptop (i7-7500U (2 cores 4 threads)):
+- With `Noise::Fast2D`: around 50ms
+- With `Noise::Fast2D` `-Dpreview_mt` `CRYSTAL_WORKERS=1`: around 50ms
+- With `Noise::Fast2D` `-Dpreview_mt` `CRYSTAL_WORKERS=2`: around 38ms
+- With `Noise::Fast2D` `-Dpreview_mt` `CRYSTAL_WORKERS=4`: around 32ms
+- With `Noise::Fast2D` `-Dpreview_mt` `CRYSTAL_WORKERS=8`: around 32ms
+- With `Noise::Fast2D` `-Dpreview_mt` `CRYSTAL_WORKERS=16`: around 32ms
+- With `Noise::Fast2D`, `--release`: around 12ms
+- With `Noise::Fast2D`, `--release`, `-Dpreview_mt` `CRYSTAL_WORKERS=1`: around 12ms
+- With `Noise::Fast2D`, `--release`, `-Dpreview_mt` `CRYSTAL_WORKERS=4`: around 4ms

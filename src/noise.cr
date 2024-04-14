@@ -41,7 +41,7 @@ class Noise
 
   def [](*coordinates : Float64) : Float64
     coordinates = coordinates.map_with_index { |c, i| 
-      c = c * (@frequencies[i]? || 1.0) + (@offsets[i]? || 1.0) 
+      c = c * (@frequencies[i]? || 1.0) + (@offsets[i]? || 0.0) 
     }
     if child = @child
       child[*coordinates]
@@ -64,18 +64,20 @@ class Noise
         coordinates[dimension] - (coordinates[dimension].to_i + modifiers[dimension]) 
       }
 
-      (0...(coordinates.size)).sum { |dimension|
+      product = (0...(coordinates.size)).sum { |dimension|
         g[dimension] * distance[dimension]
       }
+            
+       product
     }
-    
+
     (0...(coordinates.size)).map { |dimension| 
       s = coordinates[dimension] - coordinates[dimension].to_i
       products = (0...(2 ** ((coordinates.size) - dimension - 1))).map { |n|
-        interpolate products[n * 2], products[n * 2 + 1], s
+        i = interpolate products[n * 2], products[n * 2 + 1], s
+        i
       }
     }
-
     products.first
   end
 
